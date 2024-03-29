@@ -2,7 +2,7 @@
 name: Feature Request
 about: 기능 추가
 title: ''
-label: ''
+label: 기능
 ---
 
 ## 기능 정의
