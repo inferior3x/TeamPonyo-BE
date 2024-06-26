@@ -4,9 +4,9 @@ spring:
       TeamPonyo
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/onjeon?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&useUnicode=true&characterSetResults=utf8mb4
-    username: root
-    password: qwer1234
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
   jpa:
     show-sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
@@ -14,4 +14,19 @@ spring:
       hibernate:
         format_sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
+oauth:
+  naver:
+    secret:
+      ${NAVER_SECRET}
+  kakao:
+    secret:
+      ${KAKAO_SECRET}
+  google:
+    secret:
+      ${GOOGLE_SECRET}
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiry: 2h
+  refresh-token-expiry: 14d
+  oauth2-login-token-expiry: 10m
