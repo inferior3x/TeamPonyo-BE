@@ -18,11 +18,11 @@ public class TeamInfo {
     @OneToOne(mappedBy="teamInfo")
     @JoinColumn(name = "team_id")
     private User user;
-
     @Column(nullable = false)
     private String representativeName;
     @Column(nullable = false)
     private String evidenceUrl;
+    @Column(nullable = false)
     private boolean approval;
 
     private TeamInfo(String representativeName, String evidenceUrl) {
@@ -31,7 +31,7 @@ public class TeamInfo {
         this.approval = false;
     }
 
-    public static TeamInfo createTeamInfo(String representativeName, String evidenceUrl){
+    public static TeamInfo create(String representativeName, String evidenceUrl){
         return new TeamInfo(representativeName, evidenceUrl);
     }
 

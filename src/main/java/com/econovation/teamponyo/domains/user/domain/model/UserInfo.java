@@ -3,21 +3,24 @@ package com.econovation.teamponyo.domains.user.domain.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserInfo {
+    @Column(nullable = false)
     private String nickname;
-    private String phoneNumber;
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
     private String introduction;
+    private String phoneNumber;
 
-    public UserInfo createUserInfo(UserInfoValidator userInfoValidator, String nickname, String phoneNumber, String email, String introduction){
-        userInfoValidator.validate(nickname, phoneNumber, email, introduction);
-        return new UserInfo(nickname, phoneNumber, email, introduction);
+    public UserInfo(String nickname, String email, String introduction, String phoneNumber) {
+        this.nickname = nickname;
+        this.email = email;
+        this.introduction = introduction;
+        this.phoneNumber = phoneNumber;
     }
 }
