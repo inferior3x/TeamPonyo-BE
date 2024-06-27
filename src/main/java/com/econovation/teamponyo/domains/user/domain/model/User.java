@@ -56,6 +56,25 @@ public class User {
 
     private LocalDateTime withdrawDate;
 
+    public void changePassword(String oldPassword, String newPassword){
+        if (!isFormLoginUser())
+            throw new IllegalArgumentException("일반 로그인 유저가 아님");
+        this.formCredentials.changePassword(oldPassword, newPassword);
+    }
+
+    public boolean matchPassword(String password){
+        if (!isFormLoginUser())
+            throw new IllegalArgumentException("일반 로그인 유저가 아님");
+        return this.formCredentials.matchPassword(password);
+    }
+
+    private boolean isFormLoginUser(){
+        return this.formCredentials != null;
+    }
+    private boolean isSocialLoginUser(){
+        return this.socialLoginInfo != null;
+    }
+
     public static User createOAuth2(SocialLoginInfo socialLoginInfo, UserInfo userInfo, boolean emailSubscription){
         return User.builder()
                 .socialLoginInfo(socialLoginInfo)
