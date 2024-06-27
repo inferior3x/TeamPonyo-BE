@@ -18,7 +18,7 @@ import com.econovation.teamponyo.domains.user.application.port.in.dto.OAuth2User
 import com.econovation.teamponyo.domains.user.application.port.in.dto.TokensRes;
 import com.econovation.teamponyo.domains.user.application.port.out.UserLoadPort;
 import com.econovation.teamponyo.domains.user.application.port.out.UserRecordPort;
-import com.econovation.teamponyo.domains.user.domain.model.FormLoginCredentials;
+import com.econovation.teamponyo.domains.user.domain.model.FormCredentials;
 import com.econovation.teamponyo.domains.user.domain.model.SocialLoginInfo;
 import com.econovation.teamponyo.domains.user.domain.model.TeamInfo;
 import com.econovation.teamponyo.domains.user.domain.model.User;
@@ -48,7 +48,7 @@ public class UserService implements
     @Override
     public void register(@Valid FormPersonalUserRegisterCommand command) {
         User user = User.createPersonal(
-                new FormLoginCredentials(command.loginId(), command.password()),
+                new FormCredentials(command.loginId(), command.password()),
                 new UserInfo(command.nickname(), command.email(), null, null),
                 command.emailSubscription()
         );
@@ -59,7 +59,7 @@ public class UserService implements
     @Override
     public void register(@Valid FormTeamUserRegisterCommand command) {
         User user = User.createTeam(
-                new FormLoginCredentials(command.loginId(), command.password()),
+                new FormCredentials(command.loginId(), command.password()),
                 new UserInfo(command.nickname(), command.email(), null, command.phoneNumber()),
                 TeamInfo.create(command.representativeName(), command.evidenceUrl()),
                 command.emailSubscription()
@@ -98,8 +98,9 @@ public class UserService implements
 
     @Override
     public TokensRes login(String loginId, String password) {
-        User user = userLoadPort.findByFormLoginCredentials(new FormLoginCredentials(loginId, password))
+        User user = userLoadPort.findByLoginId(loginId)
                 .orElseThrow(()->new IllegalArgumentException("존재하지 않는 유저"));
+
         return new TokensRes(
                 accessTokenSerializer.serialize(new AccessToken(user.getUserId(), user.getAccountType())),
                 refreshTokenSerializer.serialize(new RefreshToken(user.getUserId()))

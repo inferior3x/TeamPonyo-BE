@@ -35,7 +35,7 @@ public class User {
     private Long userId;
 
     @Embedded
-    private FormLoginCredentials formLoginCredentials;
+    private FormCredentials formCredentials;
 
     @Embedded
     private SocialLoginInfo socialLoginInfo;
@@ -56,7 +56,6 @@ public class User {
 
     private LocalDateTime withdrawDate;
 
-
     public static User createOAuth2(SocialLoginInfo socialLoginInfo, UserInfo userInfo, boolean emailSubscription){
         return User.builder()
                 .socialLoginInfo(socialLoginInfo)
@@ -66,30 +65,31 @@ public class User {
                 .build();
     }
 
-    public static User createPersonal(FormLoginCredentials formLoginCredentials, UserInfo userInfo, boolean emailSubscription){
+    public static User createPersonal(FormCredentials formCredentials, UserInfo userInfo, boolean emailSubscription){
         return User.builder()
-                .formLoginCredentials(formLoginCredentials)
+                .formCredentials(formCredentials)
                 .userInfo(userInfo)
                 .accountType(AccountType.PERSONAL)
                 .emailSubscription(emailSubscription)
                 .build();
     }
 
-    public static User createTeam(FormLoginCredentials formLoginCredentials, UserInfo userInfo, TeamInfo teamInfo, boolean emailSubscription){
+    public static User createTeam(FormCredentials formCredentials, UserInfo userInfo, TeamInfo teamInfo, boolean emailSubscription){
         return User.builder()
-                .formLoginCredentials(formLoginCredentials)
+                .formCredentials(formCredentials)
                 .userInfo(userInfo)
                 .teamInfo(teamInfo)
                 .accountType(AccountType.TEAM)
                 .emailSubscription(emailSubscription)
                 .build();
     }
-    public static User createAdmin(FormLoginCredentials formLoginCredentials, UserInfo userInfo){
+    public static User createAdmin(FormCredentials formCredentials, UserInfo userInfo){
         return User.builder()
-                .formLoginCredentials(formLoginCredentials)
+                .formCredentials(formCredentials)
                 .userInfo(userInfo)
                 .accountType(AccountType.ADMIN)
                 .build();
     }
+
 }
 

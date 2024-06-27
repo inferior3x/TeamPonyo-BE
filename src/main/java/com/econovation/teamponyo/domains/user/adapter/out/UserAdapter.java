@@ -3,7 +3,6 @@ package com.econovation.teamponyo.domains.user.adapter.out;
 import com.econovation.teamponyo.domains.user.application.port.out.UserLoadPort;
 import com.econovation.teamponyo.domains.user.application.port.out.UserRecordPort;
 import com.econovation.teamponyo.domains.user.domain.UserRepository;
-import com.econovation.teamponyo.domains.user.domain.model.FormLoginCredentials;
 import com.econovation.teamponyo.domains.user.domain.model.SocialLoginInfo;
 import com.econovation.teamponyo.domains.user.domain.model.User;
 import java.util.Optional;
@@ -36,8 +35,8 @@ public class UserAdapter implements UserLoadPort, UserRecordPort {
     }
 
     @Override
-    public Optional<User> findByFormLoginCredentials(FormLoginCredentials formLoginCredentials) {
-        return userRepository.findByFormLoginCredentials(formLoginCredentials);
+    public Optional<User> findByLoginId(String loginId) {
+        return userRepository.findByFormCredentialsLoginId(loginId);
     }
 
     @Override

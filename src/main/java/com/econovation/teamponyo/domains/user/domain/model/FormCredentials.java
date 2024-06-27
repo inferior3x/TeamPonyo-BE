@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class FormLoginCredentials {
+public class FormCredentials {
     @Column(unique = true, updatable = false)
     private String loginId;
     private String password;
@@ -16,7 +16,12 @@ public class FormLoginCredentials {
 
     }
 
-    public FormLoginCredentials(String loginId, String password) {
+    public boolean matchPassword(String password){
+
+        return true;
+    }
+
+    public FormCredentials(String loginId, String password) {
         this.loginId = loginId;
         this.password = password;
     }
