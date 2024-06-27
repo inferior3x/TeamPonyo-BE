@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 //TODO: 반환 형식
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class UserController {
     private final OAuth2UserRegisterUseCase oAuth2UserRegisterUseCase;
@@ -44,15 +44,14 @@ public class UserController {
     private final CookieFactory cookieFactory;
     private final JwtProperties jwtProperties;
 
-
-    @PostMapping("/signup")
+    @PostMapping("/auth/signup")
     public ResponseEntity<String> formSignup(@RequestBody @Valid FormPersonalUserRegisterCommand req){
         formUserRegisterUseCase.register(req);
         return ResponseEntity.ok("회원가입 완료");
     }
 
 
-    @PostMapping("/signup/oauth")
+    @PostMapping("/auth/signup/oauth")
     public ResponseEntity<String> oAuth2UserSignup(@CookieValue(name = OAUTH2_LOGIN_TOKEN) Cookie oAuth2TokenCookie, @RequestBody @Valid OAuth2UserSignupReq req){
         oAuth2UserRegisterUseCase.register(
                 new OAuth2UserRegisterCommand(oAuth2TokenCookie.getValue(), req.nickname(), req.emailSubscription())
@@ -61,7 +60,7 @@ public class UserController {
     }
 
 
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<AccessTokenRes> formLogin(@RequestBody @Valid FormLoginReq req, HttpServletResponse response){
         TokensRes tokensRes = formUserLoginUseCase.login(req.loginId(), req.password());
 
@@ -73,7 +72,7 @@ public class UserController {
     }
 
 
-    @PostMapping("/login/oauth")
+    @PostMapping("/auth/login/oauth")
     public ResponseEntity<AccessTokenRes> oAuth2UserLogin(@CookieValue(name = OAUTH2_LOGIN_TOKEN) Cookie oAuth2TokenCookie, HttpServletResponse response){
         TokensRes tokensRes = oAuth2UserLoginUseCase.login(oAuth2TokenCookie.getValue());
         Cookie refreshTokenCookie = cookieFactory.create(REFRESH_TOKEN, tokensRes.refreshToken(), jwtProperties.getTokenExpiry(TokenType.REFRESH));
@@ -81,21 +80,21 @@ public class UserController {
         return ResponseEntity.ok(new AccessTokenRes(tokensRes.accessToken()));
     }
 
-    @PostMapping("/logout")
+    @PostMapping("/auth/logout")
     public ResponseEntity<String> logout(@CookieValue(name = REFRESH_TOKEN) Cookie refreshToken, HttpServletResponse response){
         userLogoutUseCase.logout(refreshToken.getValue());
         response.addCookie(cookieFactory.createDeletionCookie(REFRESH_TOKEN));
         return ResponseEntity.ok("로그아웃 완료");
     }
 
-    @PostMapping("/tokens/access")
+    @PostMapping("/auth/tokens/access")
     public ResponseEntity<AccessTokenRes> reissueAccessToken(
             @CookieValue(name = REFRESH_TOKEN) Cookie refreshTokenCookie){
         String newAccessToken = tokenReissueUseCase.access(refreshTokenCookie.getValue());
         return ResponseEntity.ok(new AccessTokenRes(newAccessToken));
     }
 
-    @PostMapping("/tokens/refresh")
+    @PostMapping("/auth/tokens/refresh")
     public ResponseEntity<String> reissueRefreshToken(
             @CookieValue(name = REFRESH_TOKEN) Cookie refreshTokenCookie, HttpServletResponse response){
 
