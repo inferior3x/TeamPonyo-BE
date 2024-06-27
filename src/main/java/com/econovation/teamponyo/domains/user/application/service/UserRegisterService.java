@@ -32,11 +32,7 @@ import org.springframework.stereotype.Component;
 public class UserService implements
         OAuth2UserRegisterUseCase,
         FormUserRegisterUseCase,
-        OAuth2UserExistQueryUseCase,
-        OAuth2UserLoginUseCase,
-        FormUserLoginUseCase,
-        UserLogoutUseCase,
-        TokenReissueUseCase {
+        OAuth2UserExistQueryUseCase{
 
     private final UserLoadPort userLoadPort;
     private final UserRecordPort userRecordPort;
@@ -84,49 +80,7 @@ public class UserService implements
         return userLoadPort.existsBySocialLoginInfo(new SocialLoginInfo(socialProvider, socialId));
     }
 
-    @Override
-    public TokensRes login(String oAuth2LoginToken) {
-        OAuth2LoginToken oAuth2Login = oAuth2LoginTokenSerializer.deserialize(oAuth2LoginToken);
-        //TODO: 블랙리스트
-        User user = userLoadPort.findBySocialLoginInfo(new SocialLoginInfo(oAuth2Login.getSocialProvider(), oAuth2Login.getSocialId()))
-                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 유저"));
-        return new TokensRes(
-                accessTokenSerializer.serialize(new AccessToken(user.getUserId(), user.getAccountType())),
-                refreshTokenSerializer.serialize(new RefreshToken(user.getUserId()))
-        );
-    }
 
-    @Override
-    public TokensRes login(String loginId, String password) {
-        User user = userLoadPort.findByLoginId(loginId)
-                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 유저"));
 
-        return new TokensRes(
-                accessTokenSerializer.serialize(new AccessToken(user.getUserId(), user.getAccountType())),
-                refreshTokenSerializer.serialize(new RefreshToken(user.getUserId()))
-        );
-    }
 
-    @Override
-    public void logout(String refreshToken) {
-        RefreshToken refresh = refreshTokenSerializer.deserialize(refreshToken);
-        User user = userLoadPort.getByUserId(refresh.getUserId());
-        //TODO: 블랙리스트 추가
-    }
-
-    @Override
-    public String access(String refreshToken) {
-        RefreshToken refresh = refreshTokenSerializer.deserialize(refreshToken);
-        User user = userLoadPort.getByUserId(refresh.getUserId());
-        return accessTokenSerializer.serialize(new AccessToken(user.getUserId(), user.getAccountType()));
-    }
-
-    @Override
-    public String refresh(String refreshToken) {
-        //TODO: 모든 곳에 탈퇴 유저인지 확인하는 로직
-        RefreshToken refresh = refreshTokenSerializer.deserialize(refreshToken);
-        User user = userLoadPort.getByUserId(refresh.getUserId());
-        //TODO: 블랙리스트에 추가 refresh.getTokenId()
-        return refreshTokenSerializer.serialize(new RefreshToken(refresh.getUserId()));
-    }
 }

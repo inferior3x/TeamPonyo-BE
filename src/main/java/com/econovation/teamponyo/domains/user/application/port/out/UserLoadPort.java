@@ -1,6 +1,5 @@
 package com.econovation.teamponyo.domains.user.application.port.out;
 
-import com.econovation.teamponyo.domains.user.domain.model.FormCredentials;
 import com.econovation.teamponyo.domains.user.domain.model.SocialLoginInfo;
 import com.econovation.teamponyo.domains.user.domain.model.User;
 import java.util.Optional;
