@@ -4,6 +4,7 @@ import com.econovation.teamponyo.domains.user.application.port.in.UserChangePass
 import com.econovation.teamponyo.domains.user.application.port.in.dto.UserChangePasswordCommand;
 import com.econovation.teamponyo.domains.user.application.port.out.UserLoadPort;
 import com.econovation.teamponyo.domains.user.domain.model.User;
+import com.econovation.teamponyo.infrastructure.security.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ public class UserService implements UserChangePasswordUseCase {
     @Transactional
     @Override
     public void changePassword(@Valid UserChangePasswordCommand command) {
-        User user = userLoadPort.getByUserId(command.userId());
+        User user = userLoadPort.getByUserId(SecurityUtil.getUserId());
         user.changePassword(command.oldPassword(), command.newPassword());
     }
 }

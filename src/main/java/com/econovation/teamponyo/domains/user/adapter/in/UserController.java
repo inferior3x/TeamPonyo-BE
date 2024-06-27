@@ -9,7 +9,6 @@ import com.econovation.teamponyo.common.utils.CookieFactory;
 import com.econovation.teamponyo.domains.user.adapter.in.dto.AccessTokenRes;
 import com.econovation.teamponyo.domains.user.adapter.in.dto.FormLoginReq;
 import com.econovation.teamponyo.domains.user.adapter.in.dto.OAuth2UserSignupReq;
-import com.econovation.teamponyo.domains.user.adapter.in.dto.UserChangePasswordReq;
 import com.econovation.teamponyo.domains.user.application.port.in.FormUserLoginUseCase;
 import com.econovation.teamponyo.domains.user.application.port.in.FormUserRegisterUseCase;
 import com.econovation.teamponyo.domains.user.application.port.in.OAuth2UserLoginUseCase;
@@ -21,7 +20,6 @@ import com.econovation.teamponyo.domains.user.application.port.in.dto.FormPerson
 import com.econovation.teamponyo.domains.user.application.port.in.dto.OAuth2UserRegisterCommand;
 import com.econovation.teamponyo.domains.user.application.port.in.dto.TokensRes;
 import com.econovation.teamponyo.domains.user.application.port.in.dto.UserChangePasswordCommand;
-import com.econovation.teamponyo.infrastructure.security.SecurityUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -50,7 +48,7 @@ public class UserController {
     private final JwtProperties jwtProperties;
 
     @PostMapping("/auth/signup")
-    public ResponseEntity<String> formSignup(@RequestBody @Valid FormPersonalUserRegisterCommand req){
+    public ResponseEntity<String> formSignup(@RequestBody FormPersonalUserRegisterCommand req){
         formUserRegisterUseCase.register(req);
         return ResponseEntity.ok("회원가입 완료");
     }
@@ -112,9 +110,9 @@ public class UserController {
     }
 
     @PostMapping("/user/password")
-    public ResponseEntity<String> changePassword(@RequestBody @Valid UserChangePasswordReq req){
+    public ResponseEntity<String> changePassword(@RequestBody @Valid UserChangePasswordCommand command){
 
-        userChangePasswordUseCase.changePassword(new UserChangePasswordCommand(SecurityUtil.getUserId(), req.oldPassword(), req.newPassword()));
+        userChangePasswordUseCase.changePassword(command);
         return ResponseEntity.ok("비밀번호 변경 완료");
     }
 }
