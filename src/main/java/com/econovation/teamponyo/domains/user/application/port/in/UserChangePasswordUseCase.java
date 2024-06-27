@@ -4,5 +4,5 @@ import com.econovation.teamponyo.domains.user.application.port.in.dto.UserChange
 
 public interface UserChangePasswordUseCase {
     //TODO: command 하나로 합치기
-    void changePassword(Long userId, UserChangePasswordCommand command);
+    void changePassword(UserChangePasswordCommand command);
 }

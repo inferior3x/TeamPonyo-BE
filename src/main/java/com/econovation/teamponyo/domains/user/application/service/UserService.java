@@ -16,8 +16,8 @@ public class UserService implements UserChangePasswordUseCase {
 
     @Transactional
     @Override
-    public void changePassword(Long userId, @Valid UserChangePasswordCommand command) {
-        User user = userLoadPort.getByUserId(userId);
+    public void changePassword(@Valid UserChangePasswordCommand command) {
+        User user = userLoadPort.getByUserId(command.userId());
         user.changePassword(command.oldPassword(), command.newPassword());
     }
 }

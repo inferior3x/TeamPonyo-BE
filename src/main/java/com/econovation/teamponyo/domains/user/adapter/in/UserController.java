@@ -9,6 +9,7 @@ import com.econovation.teamponyo.common.utils.CookieFactory;
 import com.econovation.teamponyo.domains.user.adapter.in.dto.AccessTokenRes;
 import com.econovation.teamponyo.domains.user.adapter.in.dto.FormLoginReq;
 import com.econovation.teamponyo.domains.user.adapter.in.dto.OAuth2UserSignupReq;
+import com.econovation.teamponyo.domains.user.adapter.in.dto.UserChangePasswordReq;
 import com.econovation.teamponyo.domains.user.application.port.in.FormUserLoginUseCase;
 import com.econovation.teamponyo.domains.user.application.port.in.FormUserRegisterUseCase;
 import com.econovation.teamponyo.domains.user.application.port.in.OAuth2UserLoginUseCase;
@@ -111,8 +112,9 @@ public class UserController {
     }
 
     @PostMapping("/user/password")
-    public ResponseEntity<String> changePassword(@RequestBody UserChangePasswordCommand command){
-        userChangePasswordUseCase.changePassword(SecurityUtil.getUserId(), command);
+    public ResponseEntity<String> changePassword(@RequestBody @Valid UserChangePasswordReq req){
+
+        userChangePasswordUseCase.changePassword(new UserChangePasswordCommand(SecurityUtil.getUserId(), req.oldPassword(), req.newPassword()));
         return ResponseEntity.ok("비밀번호 변경 완료");
     }
 }
