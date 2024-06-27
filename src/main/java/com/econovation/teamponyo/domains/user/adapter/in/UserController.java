@@ -14,10 +14,13 @@ import com.econovation.teamponyo.domains.user.application.port.in.FormUserRegist
 import com.econovation.teamponyo.domains.user.application.port.in.OAuth2UserLoginUseCase;
 import com.econovation.teamponyo.domains.user.application.port.in.OAuth2UserRegisterUseCase;
 import com.econovation.teamponyo.domains.user.application.port.in.TokenReissueUseCase;
+import com.econovation.teamponyo.domains.user.application.port.in.UserChangePasswordUseCase;
 import com.econovation.teamponyo.domains.user.application.port.in.UserLogoutUseCase;
 import com.econovation.teamponyo.domains.user.application.port.in.dto.FormPersonalUserRegisterCommand;
 import com.econovation.teamponyo.domains.user.application.port.in.dto.OAuth2UserRegisterCommand;
 import com.econovation.teamponyo.domains.user.application.port.in.dto.TokensRes;
+import com.econovation.teamponyo.domains.user.application.port.in.dto.UserChangePasswordCommand;
+import com.econovation.teamponyo.infrastructure.security.SecurityUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -41,6 +44,7 @@ public class UserController {
     private final FormUserLoginUseCase formUserLoginUseCase;
     private final UserLogoutUseCase userLogoutUseCase;
     private final TokenReissueUseCase tokenReissueUseCase;
+    private final UserChangePasswordUseCase userChangePasswordUseCase;
     private final CookieFactory cookieFactory;
     private final JwtProperties jwtProperties;
 
@@ -104,5 +108,11 @@ public class UserController {
                 jwtProperties.getTokenExpiry(TokenType.REFRESH));
         response.addCookie(newRefreshTokenCookie);
         return ResponseEntity.ok("리프레시 토큰 발급 완료");
+    }
+
+    @PostMapping("/user/password")
+    public ResponseEntity<String> changePassword(@RequestBody UserChangePasswordCommand command){
+        userChangePasswordUseCase.changePassword(SecurityUtil.getUserId(), command);
+        return ResponseEntity.ok("비밀번호 변경 완료");
     }
 }
