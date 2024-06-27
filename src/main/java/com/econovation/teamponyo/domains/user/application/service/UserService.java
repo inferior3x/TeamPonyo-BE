@@ -7,11 +7,14 @@ import com.econovation.teamponyo.domains.user.domain.model.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserChangePasswordUseCase {
     private final UserLoadPort userLoadPort;
+
+    @Transactional
     @Override
     public void changePassword(Long userId, @Valid UserChangePasswordCommand command) {
         User user = userLoadPort.getByUserId(userId);

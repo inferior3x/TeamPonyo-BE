@@ -16,6 +16,7 @@ import com.econovation.teamponyo.domains.user.domain.model.UserInfo;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class UserRegisterService implements
     private final TokenSerializer<OAuth2LoginToken> oAuth2LoginTokenSerializer;
 
     //TODO: 생성하는건 DTO로 받아서 검증이 필수 기록
+    @Transactional
     @Override
     public void register(@Valid FormPersonalUserRegisterCommand command) {
         User user = User.createPersonal(
@@ -37,7 +39,7 @@ public class UserRegisterService implements
         userRecordPort.save(user);
     }
 
-
+    @Transactional
     @Override
     public void register(@Valid FormTeamUserRegisterCommand command) {
         User user = User.createTeam(
@@ -49,6 +51,7 @@ public class UserRegisterService implements
         userRecordPort.save(user);
     }
 
+    @Transactional
     @Override
     public void register(@Valid OAuth2UserRegisterCommand command) {
         OAuth2LoginToken oAuth2Login = oAuth2LoginTokenSerializer.deserialize(command.oAuth2LoginToken());

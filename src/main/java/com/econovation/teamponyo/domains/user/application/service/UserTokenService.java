@@ -8,6 +8,7 @@ import com.econovation.teamponyo.domains.user.application.port.out.UserLoadPort;
 import com.econovation.teamponyo.domains.user.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +17,7 @@ public class UserTokenService implements TokenReissueUseCase {
     private final TokenSerializer<AccessToken> accessTokenSerializer;
     private final TokenSerializer<RefreshToken> refreshTokenSerializer;
 
+    @Transactional(readOnly = true)
     @Override
     public String access(String refreshToken) {
         RefreshToken refresh = refreshTokenSerializer.deserialize(refreshToken);
@@ -23,6 +25,7 @@ public class UserTokenService implements TokenReissueUseCase {
         return accessTokenSerializer.serialize(new AccessToken(user.getUserId(), user.getAccountType()));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public String refresh(String refreshToken) {
         //TODO: 모든 곳에 탈퇴 유저인지 확인하는 로직

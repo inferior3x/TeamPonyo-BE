@@ -12,6 +12,7 @@ import com.econovation.teamponyo.domains.user.domain.model.SocialLoginInfo;
 import com.econovation.teamponyo.domains.user.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +24,8 @@ public class UserLoginService implements
     private final TokenSerializer<AccessToken> accessTokenSerializer;
     private final TokenSerializer<RefreshToken> refreshTokenSerializer;
     private final TokenSerializer<OAuth2LoginToken> oAuth2LoginTokenSerializer;
+
+    @Transactional(readOnly = true)
     @Override
     public TokensRes login(String oAuth2LoginToken) {
         OAuth2LoginToken oAuth2Login = oAuth2LoginTokenSerializer.deserialize(oAuth2LoginToken);
@@ -35,6 +38,7 @@ public class UserLoginService implements
         );
     }
 
+    @Transactional(readOnly = true)
     @Override
     public TokensRes login(String loginId, String password) {
         User user = userLoadPort.findByLoginId(loginId)
