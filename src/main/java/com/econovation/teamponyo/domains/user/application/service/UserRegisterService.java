@@ -1,22 +1,12 @@
 package com.econovation.teamponyo.domains.user.application.service;
 
-import com.econovation.teamponyo.common.enums.SocialProvider;
-import com.econovation.teamponyo.common.jwt.tokens.AccessToken;
 import com.econovation.teamponyo.common.jwt.tokens.OAuth2LoginToken;
-import com.econovation.teamponyo.common.jwt.tokens.RefreshToken;
 import com.econovation.teamponyo.common.jwt.tokens.TokenSerializer;
-import com.econovation.teamponyo.domains.user.application.port.in.FormUserLoginUseCase;
 import com.econovation.teamponyo.domains.user.application.port.in.FormUserRegisterUseCase;
-import com.econovation.teamponyo.domains.user.application.port.in.OAuth2UserExistQueryUseCase;
-import com.econovation.teamponyo.domains.user.application.port.in.OAuth2UserLoginUseCase;
 import com.econovation.teamponyo.domains.user.application.port.in.OAuth2UserRegisterUseCase;
-import com.econovation.teamponyo.domains.user.application.port.in.TokenReissueUseCase;
-import com.econovation.teamponyo.domains.user.application.port.in.UserLogoutUseCase;
 import com.econovation.teamponyo.domains.user.application.port.in.dto.FormPersonalUserRegisterCommand;
 import com.econovation.teamponyo.domains.user.application.port.in.dto.FormTeamUserRegisterCommand;
 import com.econovation.teamponyo.domains.user.application.port.in.dto.OAuth2UserRegisterCommand;
-import com.econovation.teamponyo.domains.user.application.port.in.dto.TokensRes;
-import com.econovation.teamponyo.domains.user.application.port.out.UserLoadPort;
 import com.econovation.teamponyo.domains.user.application.port.out.UserRecordPort;
 import com.econovation.teamponyo.domains.user.domain.model.FormCredentials;
 import com.econovation.teamponyo.domains.user.domain.model.SocialLoginInfo;
@@ -29,15 +19,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class UserService implements
+public class UserRegisterService implements
         OAuth2UserRegisterUseCase,
-        FormUserRegisterUseCase,
-        OAuth2UserExistQueryUseCase{
+        FormUserRegisterUseCase{
 
-    private final UserLoadPort userLoadPort;
     private final UserRecordPort userRecordPort;
-    private final TokenSerializer<AccessToken> accessTokenSerializer;
-    private final TokenSerializer<RefreshToken> refreshTokenSerializer;
     private final TokenSerializer<OAuth2LoginToken> oAuth2LoginTokenSerializer;
 
     //TODO: 생성하는건 DTO로 받아서 검증이 필수 기록
@@ -74,13 +60,5 @@ public class UserService implements
         );
         userRecordPort.save(user);
     }
-
-    @Override
-    public boolean exists(SocialProvider socialProvider, String socialId) {
-        return userLoadPort.existsBySocialLoginInfo(new SocialLoginInfo(socialProvider, socialId));
-    }
-
-
-
 
 }
