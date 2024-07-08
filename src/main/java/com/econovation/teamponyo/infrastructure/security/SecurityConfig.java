@@ -77,9 +77,9 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain noAuthenticationFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.securityMatcher(
-                "/tokens/*",
-                "/auth/login*",
-                "/auth/signup*"
+                "/api/v1/tokens/*",
+                "/api/v1/auth/login*",
+                "/api/v1/auth/signup*"
         );
         httpSecurity.authorizeHttpRequests(auth-> {
             auth.anyRequest().permitAll();
@@ -97,9 +97,15 @@ public class SecurityConfig {
     @Bean
     @Order(3)
     public SecurityFilterChain authenticationFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.securityMatcher("/auth/logout");
+        httpSecurity.securityMatcher(
+                "/api/v1/auth/logout",
+                "/api/v1/exhibits"
+        );
         httpSecurity.authorizeHttpRequests(auth-> {
-            auth.requestMatchers("/auth/logout").authenticated();
+            auth.requestMatchers(
+                    "/api/v1/auth/logout",
+                    "/api/v1/exhibits"
+            ).authenticated();
             //hasAuthority()
             auth.anyRequest().denyAll();
         });
@@ -109,7 +115,7 @@ public class SecurityConfig {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
         httpSecurity.addFilterAt(new JwtAuthenticationFilter(accessTokenSerializer), LogoutFilter.class);
         httpSecurity.logout(logout->{
-            logout.logoutUrl("/auth/logout");
+            logout.logoutUrl("/api/v1/auth/logout");
             logout.logoutSuccessHandler(logoutSuccessHandler); //TODO: 리프레시 토큰 블랙리스트에 추가
         });
 
