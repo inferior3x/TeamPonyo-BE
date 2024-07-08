@@ -7,16 +7,24 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
+@Getter(AccessLevel.PACKAGE)
+@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TeamInfo {
     @Id
+    @Setter
     private Long teamId;
+
+    @Setter
     @MapsId
-    @OneToOne(mappedBy="teamInfo")
-    @JoinColumn(name = "team_id")
+    @OneToOne//(mappedBy="teamInfo")
+    @JoinColumn(name = "user_id")
     private User user;
     @Column(nullable = false)
     private String representativeName;

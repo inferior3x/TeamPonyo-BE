@@ -1,6 +1,9 @@
 package com.econovation.teamponyo.domains.user.domain.model;
 
 import com.econovation.teamponyo.common.enums.AccountType;
+import com.econovation.teamponyo.common.enums.ExhibitCategory;
+import com.econovation.teamponyo.domains.exhibit.domain.model.Exhibit;
+import com.econovation.teamponyo.domains.exhibit.domain.model.ExhibitPhotos;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -13,17 +16,20 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
+//@ToString
 @Builder(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -43,7 +49,8 @@ public class User {
     @Embedded
     private UserInfo userInfo;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Setter
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "team_info", unique = true)
     private TeamInfo teamInfo;
 
@@ -62,10 +69,19 @@ public class User {
         this.formCredentials.changePassword(oldPassword, newPassword);
     }
 
-    public boolean matchPassword(String password){
+    public boolean matchesPassword(String password){
         if (!isFormLoginUser())
             throw new IllegalArgumentException("일반 로그인 유저가 아님");
-        return this.formCredentials.matchPassword(password);
+        return this.formCredentials.matchesPassword(password);
+    }
+
+    public boolean isApprovedTeam(){
+        if (!isTeam()) //TODO: validate로 빼기
+            throw new IllegalArgumentException("팀 계정이 아님");
+        return this.teamInfo.isApproval();
+    }
+    public boolean isTeam(){
+        return AccountType.TEAM == this.accountType;
     }
 
     private boolean isFormLoginUser(){
@@ -73,6 +89,26 @@ public class User {
     }
     private boolean isSocialLoginUser(){
         return this.socialLoginInfo != null;
+    }
+
+    public Exhibit createExhibit(String posterUrl, ExhibitCategory exhibitCategory, String title, String address, String openTimes, int fee, String contact, String description, ExhibitPhotos exhibitPhotos, LocalDate startDate, LocalDate endDate){
+        if (!isApprovedTeam())
+            throw new IllegalArgumentException("허가되지 않은 팀 계정");
+        //날짜 제대로 되었는지 확인
+        return Exhibit.create(
+                this.userId,
+                posterUrl,
+                exhibitCategory,
+                title,
+                address,
+                openTimes,
+                fee,
+                contact,
+                description,
+                exhibitPhotos,
+                startDate,
+                endDate
+        );
     }
 
     public static User createOAuth2(SocialLoginInfo socialLoginInfo, UserInfo userInfo, boolean emailSubscription){
@@ -94,13 +130,15 @@ public class User {
     }
 
     public static User createTeam(FormCredentials formCredentials, UserInfo userInfo, TeamInfo teamInfo, boolean emailSubscription){
-        return User.builder()
+        User user = User.builder()
                 .formCredentials(formCredentials)
                 .userInfo(userInfo)
                 .teamInfo(teamInfo)
                 .accountType(AccountType.TEAM)
                 .emailSubscription(emailSubscription)
                 .build();
+        teamInfo.setUser(user);
+        return user;
     }
     public static User createAdmin(FormCredentials formCredentials, UserInfo userInfo){
         return User.builder()

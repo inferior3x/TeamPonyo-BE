@@ -42,13 +42,14 @@ public class UserRegisterService implements
     @Transactional
     @Override
     public void register(@Valid FormTeamUserRegisterCommand command) {
-        User user = User.createTeam(
+        User team = User.createTeam(
                 new FormCredentials(command.loginId(), command.password()),
                 new UserInfo(command.nickname(), command.email(), null, command.phoneNumber()),
                 TeamInfo.create(command.representativeName(), command.evidenceUrl()),
                 command.emailSubscription()
         );
-        userRecordPort.save(user);
+//        System.out.println(team);
+        userRecordPort.save(team);
     }
 
     @Transactional

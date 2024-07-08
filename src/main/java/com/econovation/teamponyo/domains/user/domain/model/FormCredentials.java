@@ -17,12 +17,12 @@ public class FormCredentials {
     private String password;
 
     public void changePassword(String oldPassword, String newPassword){
-        if (!matchPassword(oldPassword))
+        if (!matchesPassword(oldPassword))
             throw new IllegalArgumentException("비밀번호가 맞지 않음");
         setPassword(newPassword);
     }
 
-    public boolean matchPassword(String rawPassword){
+    public boolean matchesPassword(String rawPassword){
         return passwordEncoder.matches(rawPassword, this.password);
     }
 

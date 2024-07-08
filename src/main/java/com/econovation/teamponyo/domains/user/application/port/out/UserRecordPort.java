@@ -4,4 +4,5 @@ import com.econovation.teamponyo.domains.user.domain.model.User;
 
 public interface UserRecordPort {
     void save(User user);
+    void saveTeam(User user);
 }

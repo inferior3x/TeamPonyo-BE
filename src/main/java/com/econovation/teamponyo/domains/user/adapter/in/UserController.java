@@ -17,6 +17,7 @@ import com.econovation.teamponyo.domains.user.application.port.in.TokenReissueUs
 import com.econovation.teamponyo.domains.user.application.port.in.UserChangePasswordUseCase;
 import com.econovation.teamponyo.domains.user.application.port.in.UserLogoutUseCase;
 import com.econovation.teamponyo.domains.user.application.port.in.dto.FormPersonalUserRegisterCommand;
+import com.econovation.teamponyo.domains.user.application.port.in.dto.FormTeamUserRegisterCommand;
 import com.econovation.teamponyo.domains.user.application.port.in.dto.OAuth2UserRegisterCommand;
 import com.econovation.teamponyo.domains.user.application.port.in.dto.TokensRes;
 import com.econovation.teamponyo.domains.user.application.port.in.dto.UserChangePasswordCommand;
@@ -47,12 +48,17 @@ public class UserController {
     private final CookieFactory cookieFactory;
     private final JwtProperties jwtProperties;
 
-    @PostMapping("/auth/signup")
-    public ResponseEntity<String> formSignup(@RequestBody FormPersonalUserRegisterCommand req){
+    @PostMapping("/auth/signup/personal")
+    public ResponseEntity<String> formPersonalSignup(@RequestBody FormPersonalUserRegisterCommand req){
         formUserRegisterUseCase.register(req);
         return ResponseEntity.ok("회원가입 완료");
     }
 
+    @PostMapping("/auth/signup/team")
+    public ResponseEntity<String> formTeamSignup(@RequestBody FormTeamUserRegisterCommand req){
+        formUserRegisterUseCase.register(req);
+        return ResponseEntity.ok("회원가입 완료");
+    }
 
     @PostMapping("/auth/signup/oauth")
     public ResponseEntity<String> oAuth2UserSignup(@CookieValue(name = OAUTH2_LOGIN_TOKEN) Cookie oAuth2TokenCookie, @RequestBody @Valid OAuth2UserSignupReq req){
