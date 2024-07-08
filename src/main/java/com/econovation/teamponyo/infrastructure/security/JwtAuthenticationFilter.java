@@ -26,7 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token == null) throw new IllegalArgumentException("토큰이 없습니다"); //TODO
 
-        AccessToken accessToken = accessTokenSerializer.deserialize(token);
+        AccessToken accessToken = accessTokenSerializer.deserialize(token.substring(7)); //TODO: 7
 
         JwtAuthentication authentication = new JwtAuthentication(
                 accessToken.getUserId(),
