@@ -4,7 +4,7 @@ import com.econovation.teamponyo.domains.user.domain.model.SocialLoginInfo;
 import com.econovation.teamponyo.domains.user.domain.model.User;
 import java.util.Optional;
 
-public interface UserLoadPort {
+public interface UserLoadRepository {
     boolean existsByUserId(Long userId);
     boolean existsBySocialLoginInfo(SocialLoginInfo socialLoginInfo);
     Optional<User> findBySocialLoginInfo(SocialLoginInfo socialLoginInfo);
