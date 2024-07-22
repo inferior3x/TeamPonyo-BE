@@ -1,8 +1,0 @@
-package com.econovation.teamponyo.domains.user.application.port.out;
-
-import com.econovation.teamponyo.domains.user.domain.model.User;
-
-public interface UserRecordRepository {
-    void save(User user);
-    void saveTeam(User user);
-}

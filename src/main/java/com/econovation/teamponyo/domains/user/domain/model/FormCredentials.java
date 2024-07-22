@@ -3,10 +3,12 @@ package com.econovation.teamponyo.domains.user.domain.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+@Getter
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FormCredentials {
@@ -16,7 +18,7 @@ public class FormCredentials {
     private String loginId;
     private String password;
 
-    public void changePassword(String oldPassword, String newPassword){
+    void changePassword(String oldPassword, String newPassword){
         if (!matchesPassword(oldPassword))
             throw new IllegalArgumentException("비밀번호가 맞지 않음");
         setPassword(newPassword);

@@ -12,22 +12,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 /*
-이 프로젝트에서 시큐리티가 하는 일
+시큐리티가 하는 일
 1. 사용자가 소셜 플랫폼에서 로그인을 진행하고 사용자의 정보를 가져오는 과정을 도와준다.
 2. 로그인이 필요 없는 GET 요청은 비어있는 시큐리티 필터 체인으로 처리한다.
-3. 로그인이 필요 없는 쓰기 요청은 인증 관련 필터가 없는 시큐리티 필터 체인으로 처리한다.
+3. 로그인이 필요 없는 쓰기 요청은 인증 관련 필터가 없는 시큐리티 필터 체인으로 처리한다. (CORS, CSRF 등 보안 기능을 사용하기 위해)
 4. 로그인이 필요한 엔드포인트에 대해 jwt를 검증한다.
    로그아웃 기능을 제공한다.
  */
 @Configuration
-@EnableWebSecurity(debug = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final ClientRegistrationRepositoryFactory clientRegistrationRepositoryFactory;
@@ -35,14 +33,25 @@ public class SecurityConfig {
     private final LoginSuccessHandler loginSuccessHandler;
     private final LoginFailureHandler loginFailureHandler;
     private final LogoutSuccessHandler logoutSuccessHandler;
-    private final AccessTokenSerializer accessTokenSerializer;
+    private final AccessTokenSerializer accessTokenSerializer; //TODO: Filter가 빈으로 등록되면 자동으로 톰캣 필터에 등록되는 듯하다... 따라서 주입 없이 직접 생성하는 경우 인자로 필요하기 때문에 어쩔 수 없이 넣었다... 더 좋은 방법이 있을지?
 
     //인증인가 필요 없는 엔드포인트 - GET
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web ->
                 web.ignoring()
-                        .requestMatchers(HttpMethod.GET, "asdf");
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/exhibits/categories",
+                                "/api/v1/exhibits",
+                                "/api/v1/users/*/profile",
+                                "/api/v1/users/*/saved-exhibits",
+                                "/api/v1/users/*/visited-exhibits",
+                                "/api/v1/users/search",
+                                "/api/v1/users/*/timelines"
+                        )
+                        .requestMatchers(
+                                "/error"
+                        );
     }
 
     //OAuth2로 유저 정보를 가져오는 로직만 담당
@@ -78,12 +87,12 @@ public class SecurityConfig {
     public SecurityFilterChain noAuthenticationFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.securityMatcher(
                 "/api/v1/tokens/*",
-                "/api/v1/auth/login*",
-                "/api/v1/auth/signup*"
+                "/api/v1/auth/login",
+                "/api/v1/auth/signup/*",
+                "/test/api/v1/auth/signup/team",
+                "/test/api/v1/auth/signup/personal"
         );
-        httpSecurity.authorizeHttpRequests(auth-> {
-            auth.anyRequest().permitAll();
-        });
+        httpSecurity.authorizeHttpRequests(auth-> auth.anyRequest().permitAll());
 
         commonConfigurations(httpSecurity);
 
@@ -93,20 +102,42 @@ public class SecurityConfig {
 
         return httpSecurity.build();
     }
-    //인증인가 필요한 엔드포인트 - 로그아웃, 게시글 작성 등
+    //인증인가 필요하거나 상관 없는 엔드포인트 - 로그아웃, 게시글 작성 등
     @Bean
     @Order(3)
     public SecurityFilterChain authenticationFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.securityMatcher(
-                "/api/v1/auth/logout",
-                "/api/v1/exhibits"
+                "/**"
         );
         httpSecurity.authorizeHttpRequests(auth-> {
-            auth.requestMatchers(
+            //인증 필요
+            auth.requestMatchers(HttpMethod.POST,
                     "/api/v1/auth/logout",
-                    "/api/v1/exhibits"
+                    "/api/v1/exhibits",
+                    "/api/v1/user/saved-exhibits",
+                    "/api/v1/user/visited-exhibits",
+                    "/api/v1/team/member",
+                    "/api/v1/follows",
+                    "/api/v1/timelines"
             ).authenticated();
-            //hasAuthority()
+            auth.requestMatchers(HttpMethod.PATCH,
+                    "/api/v1/user/introduction",
+                    "/api/v1/user/password"
+            ).authenticated();
+            auth.requestMatchers(HttpMethod.DELETE,
+                    "/api/v1/user/saved-exhibits/*",
+                    "/api/v1/user/visited-exhibits/*",
+                    "/api/v1/follows",
+                    "/api/v1/timelines/*"
+            ).authenticated();
+            //인증 상관 없음
+            auth.requestMatchers(HttpMethod.GET,
+                    "/api/v1/exhibits/*",
+                    "/api/v1/teams/*/members",
+                    "/api/v1/users/*/follow-info",
+                    "/api/v1/users/*/followers",
+                    "/api/v1/users/*/followings"
+            ).permitAll();
             auth.anyRequest().denyAll();
         });
 
@@ -123,6 +154,7 @@ public class SecurityConfig {
     }
 
     private void commonConfigurations(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.csrf(AbstractHttpConfigurer::disable);
         httpSecurity.httpBasic(AbstractHttpConfigurer::disable);
         httpSecurity.formLogin(AbstractHttpConfigurer::disable);
         httpSecurity.sessionManagement(AbstractHttpConfigurer::disable);

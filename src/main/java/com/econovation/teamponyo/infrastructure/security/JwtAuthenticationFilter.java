@@ -24,16 +24,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
         String token = request.getHeader(AUTHORIZATION);
 
-        if (token == null) throw new IllegalArgumentException("토큰이 없습니다"); //TODO
+        if (token == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-        AccessToken accessToken = accessTokenSerializer.deserialize(token.substring(7)); //TODO: 7
+        AccessToken accessToken = accessTokenSerializer.deserialize(token.substring(7));
 
         JwtAuthentication authentication = new JwtAuthentication(
                 accessToken.getUserId(),
                 Collections.singletonList(new SimpleGrantedAuthority(accessToken.getAccountType().name()))
         ); //TODO: ROLE
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         filterChain.doFilter(request, response);
     }
 }

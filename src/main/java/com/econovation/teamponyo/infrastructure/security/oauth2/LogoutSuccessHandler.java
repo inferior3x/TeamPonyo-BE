@@ -2,7 +2,7 @@ package com.econovation.teamponyo.infrastructure.security.oauth2;
 
 import static com.econovation.teamponyo.common.consts.CommonStatics.REFRESH_TOKEN;
 
-import com.econovation.teamponyo.domains.user.application.port.in.UserLogoutUseCase;
+import com.econovation.teamponyo.domains.user.command.application.port.in.UserLogoutUseCase;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

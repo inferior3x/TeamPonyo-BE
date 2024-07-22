@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 public class CommonStatics {
     public static final String ONJEON = "onjeon";
 
+    //user
+    public static final String DEFAULT_PROFILE_IMAGE_KEYNAME = "default_profile_image.png";
+
     //JWT
     public static final String ACCESS_TOKEN = "access_token";
     public static final String REFRESH_TOKEN = "refresh_token";

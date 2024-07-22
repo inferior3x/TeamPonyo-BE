@@ -23,4 +23,8 @@ public class UserInfo {
         this.introduction = introduction;
         this.phoneNumber = phoneNumber;
     }
+
+    void changeIntroduction(String introduction){
+        this.introduction = introduction;
+    }
 }

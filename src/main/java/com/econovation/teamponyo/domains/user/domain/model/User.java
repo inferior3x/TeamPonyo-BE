@@ -1,11 +1,19 @@
 package com.econovation.teamponyo.domains.user.domain.model;
 
+import static com.econovation.teamponyo.common.consts.CommonStatics.DEFAULT_PROFILE_IMAGE_KEYNAME;
+
 import com.econovation.teamponyo.common.enums.AccountType;
 import com.econovation.teamponyo.common.enums.ExhibitCategory;
+import com.econovation.teamponyo.common.event.Events;
 import com.econovation.teamponyo.domains.exhibit.domain.model.Exhibit;
 import com.econovation.teamponyo.domains.exhibit.domain.model.ExhibitPhotos;
+import com.econovation.teamponyo.domains.exhibit.domain.model.Location;
+import com.econovation.teamponyo.domains.exhibit.domain.model.Period;
+import com.econovation.teamponyo.domains.user.events.UserEdited;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,8 +24,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,15 +38,14 @@ import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
-//@ToString
 @Builder(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE user SET withdraw_date = null WHERE user_id = ?")
 @SQLRestriction("withdraw_date IS NULL")
-public class User {
+public class User{
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
     @Embedded
@@ -54,6 +62,10 @@ public class User {
     @JoinColumn(name = "team_info", unique = true)
     private TeamInfo teamInfo;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private String profileKeyName = DEFAULT_PROFILE_IMAGE_KEYNAME;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false)
     private AccountType accountType;
@@ -61,56 +73,109 @@ public class User {
     @Column(nullable = false)
     private boolean emailSubscription;
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "saved_exhibits", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "exhibit_id")
+    private Set<Long> savedExhibits = new HashSet<>();
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "visited_exhibits", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "exhibit_id")
+    private Set<Long> visitedExhibits = new HashSet<>();
+
+    @Column
     private LocalDateTime withdrawDate;
 
+
+    //--domain logic--
+    public void saveExhibit(Long exhibitId){
+        if (!this.savedExhibits.add(exhibitId)) throw new IllegalArgumentException("이미 저장된 전시");
+    }
+
+    public void removeSavedExhibit(Long exhibitId){
+        if (!this.savedExhibits.remove(exhibitId)) throw new IllegalArgumentException("저장하지 않았던 전시");
+    }
+
+    public void addVisitedExhibit(Long exhibitId){
+        if (!this.visitedExhibits.add(exhibitId)) throw new IllegalArgumentException("이미 방문한 전시");
+    }
+
+    public void removeVisitedExhibit(Long exhibitId){
+        if (!this.visitedExhibits.remove(exhibitId)) throw new IllegalArgumentException("방문했다고 체크한 적 없는 전시");
+    }
+
     public void changePassword(String oldPassword, String newPassword){
-        if (!isFormLoginUser())
-            throw new IllegalArgumentException("일반 로그인 유저가 아님");
+        validateIsFormLoginUser();
         this.formCredentials.changePassword(oldPassword, newPassword);
+        changeIntroduction("asdfasfasdfasfdasdfasdfasdfasdfasddfjaskdlfjaslkdfjaslkdfjlaksdf");
+        Events.raise(new UserEdited(this));
+    }
+
+    public void changeIntroduction(String introduction){
+        this.userInfo.changeIntroduction(introduction);
+        Events.raise(new UserEdited(this));
     }
 
     public boolean matchesPassword(String password){
-        if (!isFormLoginUser())
-            throw new IllegalArgumentException("일반 로그인 유저가 아님");
-        return this.formCredentials.matchesPassword(password);
+       validateIsFormLoginUser();
+       return this.formCredentials.matchesPassword(password);
     }
 
-    public boolean isApprovedTeam(){
-        if (!isTeam()) //TODO: validate로 빼기
-            throw new IllegalArgumentException("팀 계정이 아님");
-        return this.teamInfo.isApproval();
-    }
-    public boolean isTeam(){
-        return AccountType.TEAM == this.accountType;
+    public void changeProfileImage(String keyName){
+        this.profileKeyName = keyName;
+        Events.raise(new UserEdited(this));
     }
 
-    private boolean isFormLoginUser(){
-        return this.formCredentials != null;
+    public TeamMember createTeamMember(User invitee){
+        this.validateIsApprovedTeam();
+        invitee.validateIsPersonal();
+        return TeamMember.of(this, invitee);
     }
-    private boolean isSocialLoginUser(){
+
+    //--check--
+    public boolean isSocialLoginUser(){
         return this.socialLoginInfo != null;
     }
 
-    public Exhibit createExhibit(String posterUrl, ExhibitCategory exhibitCategory, String title, String address, String openTimes, int fee, String contact, String description, ExhibitPhotos exhibitPhotos, LocalDate startDate, LocalDate endDate){
-        if (!isApprovedTeam())
+    //--validate--
+    public void validateIsTeam(){
+        if (AccountType.TEAM != this.accountType)
+            throw new IllegalArgumentException("팀 계정이 아님");
+    }
+    public void validateIsPersonal(){
+        if (AccountType.PERSONAL != this.accountType)
+            throw new IllegalArgumentException("개인 계정이 아님");
+    }
+    public void validateIsFormLoginUser(){
+        if (this.formCredentials == null)
+            throw new IllegalArgumentException("일반 로그인 유저가 아님");
+    }
+
+    public void validateIsApprovedTeam(){
+        validateIsTeam();
+        if (!this.teamInfo.isApproval())
             throw new IllegalArgumentException("허가되지 않은 팀 계정");
-        //날짜 제대로 되었는지 확인
+    }
+
+    //--Aggregate Factory Method--
+    public Exhibit createExhibit(String posterUrl, ExhibitCategory exhibitCategory, String title, Location location, String openTimes, String fee, String contact, String description, ExhibitPhotos exhibitPhotos, Period period){
+        validateIsApprovedTeam();
         return Exhibit.create(
                 this.userId,
                 posterUrl,
                 exhibitCategory,
                 title,
-                address,
+                location,
                 openTimes,
                 fee,
                 contact,
                 description,
                 exhibitPhotos,
-                startDate,
-                endDate
+                period
         );
     }
 
+    //--Static Factory Method--
     public static User createOAuth2(SocialLoginInfo socialLoginInfo, UserInfo userInfo, boolean emailSubscription){
         return User.builder()
                 .socialLoginInfo(socialLoginInfo)

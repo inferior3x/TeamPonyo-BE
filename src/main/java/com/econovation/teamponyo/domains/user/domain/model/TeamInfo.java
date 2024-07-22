@@ -23,7 +23,7 @@ public class TeamInfo {
 
     @Setter
     @MapsId
-    @OneToOne//(mappedBy="teamInfo")
+    @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
     @Column(nullable = false)
@@ -36,7 +36,7 @@ public class TeamInfo {
     private TeamInfo(String representativeName, String evidenceUrl) {
         this.representativeName = representativeName;
         this.evidenceUrl = evidenceUrl;
-        this.approval = false;
+        this.approval = true; //TODO: false
     }
 
     public static TeamInfo create(String representativeName, String evidenceUrl){
