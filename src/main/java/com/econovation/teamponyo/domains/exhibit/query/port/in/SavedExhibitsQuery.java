@@ -1,8 +1,7 @@
 package com.econovation.teamponyo.domains.exhibit.query.port.in;
 
-import com.econovation.teamponyo.domains.exhibit.query.port.in.dto.ExhibitSummaryDTO;
-import java.util.List;
+import com.econovation.teamponyo.domains.exhibit.query.port.in.dto.ExhibitSummariesDTO;
 
 public interface SavedExhibitsQuery {
-    List<ExhibitSummaryDTO> findSaved(Long userId, Integer number, Integer pageNumber);
+    ExhibitSummariesDTO findSaved(Long userId, Integer number, Integer pageNumber);
 }

@@ -72,6 +72,10 @@ public class Exhibit{
     @Column(nullable = false)
     private int viewCount;
 
+    public void increaseViewCount(){
+        viewCount++;
+    }
+
     public boolean isAvailable(){
         return period.isAvailable();
     }

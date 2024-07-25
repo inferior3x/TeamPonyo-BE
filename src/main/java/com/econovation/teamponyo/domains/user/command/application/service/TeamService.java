@@ -25,6 +25,8 @@ public class TeamService implements TeamInviteUserUseCase {
     @Override
     public void invite(Long inviteeId) {
         Long teamId = requesterInfo.getUserId();
+        if (inviteeId.equals(teamId))
+            throw new IllegalArgumentException("자신은 초대할 수 없음");
         if (userQueryDAO.existsTeamMember(teamId, inviteeId))
             throw new IllegalArgumentException("이미 팀에 속한 유저입니다.");
         User team = userLoadRepository.getByUserId(teamId);

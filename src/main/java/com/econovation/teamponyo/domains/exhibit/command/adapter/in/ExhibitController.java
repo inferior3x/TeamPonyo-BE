@@ -31,7 +31,7 @@ public class ExhibitController {
                         poster,
                         req.exhibitCategory(), req.title(), req.address(), req.openTimes(), req.fee(), req.contact(), req.description(),
                         photos == null ? List.of() : photos,
-                        req.startDate(), req.endDate(), req.coordinate()
+                        req.startDate(), req.endDate(), req.coordinateDTO()
                 )
         ));
     }

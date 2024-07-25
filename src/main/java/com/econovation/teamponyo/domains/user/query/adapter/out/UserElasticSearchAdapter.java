@@ -15,6 +15,7 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.get.GetResult;
 import co.elastic.clients.elasticsearch.core.mget.MultiGetResponseItem;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.econovation.teamponyo.common.interfaces.RequesterInfo;
 import com.econovation.teamponyo.domains.user.query.model.UserDocument;
 import com.econovation.teamponyo.domains.user.query.port.in.dto.MemberProfileDTO;
 import com.econovation.teamponyo.domains.user.query.port.in.dto.SearchedUserDTO;
@@ -23,6 +24,7 @@ import com.econovation.teamponyo.domains.user.query.port.out.UserSearchPort;
 import com.econovation.teamponyo.infrastructure.s3.S3Uploader;
 import java.io.File;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -35,6 +37,7 @@ public class UserElasticSearchAdapter implements UserSearchPort {
     private final UserElasticSearchRepository userElasticSearchRepository;
     private final ElasticsearchClient elasticsearchClient;
     private final S3Uploader s3Uploader;
+    private final RequesterInfo requesterInfo;
     private static final String INDEX = "users";
 
     @Override
@@ -112,21 +115,22 @@ public class UserElasticSearchAdapter implements UserSearchPort {
         } catch (IOException e) {
             throw new RuntimeException("도큐먼트 찾기 오류", e);
         }
-
         File defaultImage = s3Uploader.downloadFile(DEFAULT_PROFILE_IMAGE_KEYNAME);
-
+        Long searcherId = req.searcherId() == null ? -1 : req.searcherId();
         return searchResponse.hits().hits().stream()
                 .parallel()
                 .map(Hit::source)
+                .filter(doc -> !doc.getUserId().equals(searcherId))
                 .map(doc ->
                     new SearchedUserDTO(
                             doc.getUserId(),
                             doc.getNickname(),
                             doc.getLoginId(),
                             s3Uploader.getPublicUrl(doc.getProfileImageKeyName()),
-                            doc.getAccountType()
-                    )
-                ).toList();
+                            doc.getAccountType(),
+                            req.inviterId() == null ? null : doc.getTeamIds().contains(req.inviterId())
+                )).sorted(Comparator.comparing(SearchedUserDTO::isMember).reversed())
+                .toList();
     }
 
     @Override

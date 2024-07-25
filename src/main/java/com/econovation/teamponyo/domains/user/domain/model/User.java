@@ -107,7 +107,6 @@ public class User{
     public void changePassword(String oldPassword, String newPassword){
         validateIsFormLoginUser();
         this.formCredentials.changePassword(oldPassword, newPassword);
-        changeIntroduction("asdfasfasdfasfdasdfasdfasdfasdfasddfjaskdlfjaslkdfjaslkdfjlaksdf");
         Events.raise(new UserEdited(this));
     }
 
@@ -128,7 +127,7 @@ public class User{
 
     public TeamMember createTeamMember(User invitee){
         this.validateIsApprovedTeam();
-        invitee.validateIsPersonal();
+//        invitee.validateIsPersonal(); //TODO: 원래 검증해야 함 근데 시연을 위해 팀도 추가할 수 있게 만듦
         return TeamMember.of(this, invitee);
     }
 

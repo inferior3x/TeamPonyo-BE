@@ -4,5 +4,5 @@ import com.econovation.teamponyo.domains.exhibit.query.port.in.dto.ExhibitSummar
 import com.econovation.teamponyo.domains.exhibit.query.port.in.dto.ExhibitSummariesDTO;
 
 public interface ExhibitSummariesQuery {
-    ExhibitSummariesDTO findExhibitSummaries(ExhibitSummariesReq req);
+    ExhibitSummariesDTO get(ExhibitSummariesReq req);
 }

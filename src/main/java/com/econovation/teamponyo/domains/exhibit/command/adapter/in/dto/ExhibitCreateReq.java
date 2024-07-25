@@ -1,7 +1,7 @@
 package com.econovation.teamponyo.domains.exhibit.command.adapter.in.dto;
 
 import com.econovation.teamponyo.common.enums.ExhibitCategory;
-import com.econovation.teamponyo.domains.exhibit.command.application.port.in.dto.Coordinate;
+import com.econovation.teamponyo.domains.exhibit.command.application.port.in.dto.CoordinateDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -19,5 +19,5 @@ public record ExhibitCreateReq(
         LocalDate startDate,
         LocalDate endDate,
         @JsonProperty("position")
-        Coordinate coordinate
+        CoordinateDTO coordinateDTO
 ) {}

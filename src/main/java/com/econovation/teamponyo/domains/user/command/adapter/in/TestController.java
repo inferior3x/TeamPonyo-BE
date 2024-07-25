@@ -34,10 +34,10 @@ public class TestController {
 
     @PostMapping("/auth/signup/personal")
     public ResponseEntity<AccessTokenRes> formPersonalSignup(HttpServletResponse response){
-        UUID uuid = UUID.randomUUID();
-        FormPersonalUserRegisterCommand testReq = new FormPersonalUserRegisterCommand(uuid.toString(), "password", "nickname"+uuid, uuid+"@naver.com", false);
+        String uuid = UUID.randomUUID().toString().substring(0, 8);
+        FormPersonalUserRegisterCommand testReq = new FormPersonalUserRegisterCommand(uuid, "password", "전남대학교 에코노"+uuid, uuid+"@naver.com", false);
         userFormRegisterUseCase.register(testReq);
-        TokensRes tokensRes = userFormLoginUseCase.login(uuid.toString(), "password");
+        TokensRes tokensRes = userFormLoginUseCase.login(uuid, "password");
         Cookie refreshTokenCookie = cookieFactory.create(REFRESH_TOKEN, tokensRes.refreshToken(), jwtProperties.getTokenExpiry(TokenType.REFRESH));
         response.addCookie(refreshTokenCookie);
         return ResponseEntity.ok(new AccessTokenRes(tokensRes.accessToken()));
@@ -45,10 +45,10 @@ public class TestController {
 
     @PostMapping("/auth/signup/team")
     public ResponseEntity<AccessTokenRes> formTeamSignup(HttpServletResponse response){
-        UUID uuid = UUID.randomUUID();
-        FormTeamUserRegisterCommand testReq = new FormTeamUserRegisterCommand(uuid.toString(), "password", "nickname"+uuid, uuid+"@naver.com", "01051256008", "대표자이름"+uuid, "증빙자료url", false);
+        String uuid = UUID.randomUUID().toString().substring(0, 8);
+        FormTeamUserRegisterCommand testReq = new FormTeamUserRegisterCommand(uuid, "password", "전남대학교 에코노"+uuid, uuid+"@naver.com", "01051256008", "대표자이름"+uuid, "증빙자료url", false);
         userFormRegisterUseCase.register(testReq);
-        TokensRes tokensRes = userFormLoginUseCase.login(uuid.toString(), "password");
+        TokensRes tokensRes = userFormLoginUseCase.login(uuid, "password");
         Cookie refreshTokenCookie = cookieFactory.create(REFRESH_TOKEN, tokensRes.refreshToken(), jwtProperties.getTokenExpiry(TokenType.REFRESH));
         response.addCookie(refreshTokenCookie);
         return ResponseEntity.ok(new AccessTokenRes(tokensRes.accessToken()));

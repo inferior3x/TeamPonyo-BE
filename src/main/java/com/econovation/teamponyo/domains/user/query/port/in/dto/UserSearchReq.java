@@ -11,9 +11,13 @@ public record UserSearchReq(
         @Nullable
         Long teamId,
         @Nullable
-        String nicknameOrLoginId
+        String nicknameOrLoginId,
+        @Nullable
+        Long inviterId,
+        @Nullable
+        Long searcherId
 ){
-        @ConstructorProperties({"account-type", "team-id", "nickname-or-login-id"})
+        @ConstructorProperties({"account-type", "team-id", "nickname-or-login-id", "inviter-id", "searcher-id"})
         public UserSearchReq {
         }
 }

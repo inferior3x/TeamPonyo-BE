@@ -27,7 +27,7 @@ public record ExhibitCreateCommand(
         @NotNull
         LocalDate endDate,
         @NotNull
-        Coordinate coordinate
+        CoordinateDTO coordinateDTO
 ){
 
         public ExhibitCreateCommand {

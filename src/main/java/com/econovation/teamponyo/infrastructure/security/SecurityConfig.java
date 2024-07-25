@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/exhibits/categories",
                                 "/api/v1/exhibits",
+                                "/api/v1/exhibits/banners",
                                 "/api/v1/users/*/profile",
                                 "/api/v1/users/*/saved-exhibits",
                                 "/api/v1/users/*/visited-exhibits",
@@ -136,7 +137,8 @@ public class SecurityConfig {
                     "/api/v1/teams/*/members",
                     "/api/v1/users/*/follow-info",
                     "/api/v1/users/*/followers",
-                    "/api/v1/users/*/followings"
+                    "/api/v1/users/*/followings",
+                    "/api/v1/user/my-info"
             ).permitAll();
             auth.anyRequest().denyAll();
         });
