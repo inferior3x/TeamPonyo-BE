@@ -63,7 +63,6 @@ public class UserQueryAdapter implements UserQueryDAO {
                 .map(member -> {
                     boolean isFollowed = false;
                     if (requesterId != null) {
-                        System.out.println("asdfasfasdfasdfsd");
                         BooleanExpression followCondition = qFollow.followId.followerId.eq(requesterId)
                                 .and(qFollow.followId.followeeId.eq(member.getUserId()));
                         isFollowed = jpaQueryFactory.selectOne()

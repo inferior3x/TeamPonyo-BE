@@ -9,5 +9,5 @@ public interface RequesterInfo {
     Optional<Long> findUserId();
     default Long getUserId(){
         return findUserId().orElseThrow(()-> new IllegalArgumentException("알 수 없는 유저입니다."));
-    };
+    }
 }

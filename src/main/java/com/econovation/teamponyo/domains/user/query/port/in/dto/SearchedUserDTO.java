@@ -11,5 +11,6 @@ public record SearchedUserDTO(
         String nickname,
         String profileImageUrl,
         AccountType accountType,
+        String introduction,
         Boolean isMember
 ){}

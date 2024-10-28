@@ -13,6 +13,7 @@ import com.econovation.teamponyo.domains.exhibit.query.port.out.ExhibitQueryDAO;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,6 +23,7 @@ public class ExhibitsQueryService implements
         SavedExhibitsQuery,
         VisitedExhibitsQuery,
         ExhibitBannerQuery {
+    private final JpaRepository jpaRepository;
     private final ExhibitQueryDAO exhibitQueryDAO;
 
     @Override

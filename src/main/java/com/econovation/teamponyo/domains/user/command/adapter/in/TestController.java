@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,4 +67,14 @@ public class TestController {
         response.addCookie(refreshTokenCookie);
         return ResponseEntity.ok(new AccessTokenRes(tokensRes.accessToken()));
     }
+
+    @PostMapping("/auth/login/{login-id}")
+    public ResponseEntity<AccessTokenRes> testLogin(@PathVariable("login-id") String loginId, HttpServletResponse response){
+        TokensRes tokensRes = userFormLoginUseCase.login(loginId, "1");
+
+        Cookie refreshTokenCookie = cookieFactory.create(REFRESH_TOKEN, tokensRes.refreshToken(), jwtProperties.getTokenExpiry(TokenType.REFRESH));
+        response.addCookie(refreshTokenCookie);
+        return ResponseEntity.ok(new AccessTokenRes(tokensRes.accessToken()));
+    }
+
 }

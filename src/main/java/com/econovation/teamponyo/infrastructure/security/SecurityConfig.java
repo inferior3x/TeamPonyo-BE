@@ -91,7 +91,8 @@ public class SecurityConfig {
                 "/api/v1/auth/login",
                 "/api/v1/auth/signup/*",
                 "/test/api/v1/auth/signup/team",
-                "/test/api/v1/auth/signup/personal"
+                "/test/api/v1/auth/signup/personal",
+                "/test/api/v1/auth/login/*"
         );
         httpSecurity.authorizeHttpRequests(auth-> auth.anyRequest().permitAll());
 

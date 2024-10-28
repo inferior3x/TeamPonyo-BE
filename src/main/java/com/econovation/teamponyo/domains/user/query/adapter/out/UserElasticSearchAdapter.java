@@ -4,6 +4,7 @@ import static com.econovation.teamponyo.common.consts.CommonStatics.DEFAULT_PROF
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.FuzzyQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
@@ -37,7 +38,6 @@ public class UserElasticSearchAdapter implements UserSearchPort {
     private final UserElasticSearchRepository userElasticSearchRepository;
     private final ElasticsearchClient elasticsearchClient;
     private final S3Uploader s3Uploader;
-    private final RequesterInfo requesterInfo;
     private static final String INDEX = "users";
 
     @Override
@@ -63,8 +63,6 @@ public class UserElasticSearchAdapter implements UserSearchPort {
                     .ids(ids.stream().map(String::valueOf).toList())
             );
             MgetResponse<UserDocument> response = elasticsearchClient.mget(request, UserDocument.class);
-
-            System.out.println("response.docs().size() = " + response.docs().size());
 
             return response.docs().stream().parallel()
                     .map(MultiGetResponseItem::result)
@@ -97,12 +95,15 @@ public class UserElasticSearchAdapter implements UserSearchPort {
                     .should(WildcardQuery.of(w -> w.field("nickname").value("*" + req.nicknameOrLoginId() + "*"))._toQuery())
                     .should(WildcardQuery.of(w -> w.field("loginId").value("*" + req.nicknameOrLoginId() + "*"))._toQuery()).minimumShouldMatch("1");
         }
+
         if (req.teamId() != null)
             boolQueryBuilder.must(TermQuery.of(t -> t.field("teamIds").value(req.teamId()))._toQuery());
         if (req.accountType() != null)
             boolQueryBuilder.must(MatchQuery.of(t -> t.field("accountType").query(req.accountType().toString()))._toQuery());
 
         Query boolQuery = boolQueryBuilder.build()._toQuery();
+
+        System.out.println(boolQuery);
 
         SearchRequest searchRequest = SearchRequest.of(s -> s
                 .index(INDEX)
@@ -128,6 +129,7 @@ public class UserElasticSearchAdapter implements UserSearchPort {
                             doc.getLoginId(),
                             s3Uploader.getPublicUrl(doc.getProfileImageKeyName()),
                             doc.getAccountType(),
+                            doc.getIntroduction(),
                             req.inviterId() == null ? null : doc.getTeamIds().contains(req.inviterId())
                 )).sorted(Comparator.comparing(SearchedUserDTO::isMember).reversed())
                 .toList();
