@@ -7,5 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class TeamPonyoApplication {
     public static void main(String[] args) {
         SpringApplication.run(TeamPonyoApplication.class, args);
+
     }
 }
